@@ -44,14 +44,20 @@ def shuffle_data():
     pos_path is where you save positive review data.
     neg_path is where you save negative review data.
     '''
-    pos_path = "/Users/drosen/Dropbox/share/ML1003-share/Homework/hw3-sentiment-analysis/release/data/neg"
-    neg_path = 
+    pos_path = "data/pos"
+    neg_path = "data/neg"
 	
     pos_review = folder_list(pos_path,1)
     neg_review = folder_list(neg_path,-1)
 	
     review = pos_review + neg_review
     random.shuffle(review)
+
+    review_training = review[0:1500]
+    review_validation = review[1500:2000]
+    
+    pickle.dump(review_training, open("training.p", "wb"))
+    pickle.dump(review_validation, open("validation.p", "wb"))
 	
 '''
 Now you have read all the files into list 'review' and it has been shuffled.
@@ -59,5 +65,5 @@ Save your shuffled result by pickle.
 *Pickle is a useful module to serialize a python object structure. 
 *Check it out. https://wiki.python.org/moin/UsingPickle
 '''
- 
 
+shuffle_data()
