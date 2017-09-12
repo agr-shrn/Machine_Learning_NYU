@@ -147,7 +147,9 @@ def contourPlot(distributionFunc, actualWeights=[]):
     y_flat = y_train.reshape((length, 1))
     contourPoints = np.c_[x_flat, y_flat]
 
+    # print(contourPoints)
     values = map(distributionFunc, contourPoints)
+    values = np.fromiter(values, np.float)
     values = np.array(values).reshape(x.shape)
 
     plt.contourf(x, y_train, values)
