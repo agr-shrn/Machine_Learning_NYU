@@ -7,6 +7,7 @@
 \usepackage[letterpaper]{geometry}
 \geometry{verbose}
 \usepackage{color}
+\usepackage{minted}
 \usepackage{algorithm2e}
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -141,10 +142,10 @@ tabsize=2}
 
 
 \title{Machine Learning and Computational Statistics\\
-Homework 7: Bayesian Statistics {[}DRAFT{]}}
+Homework 7: Bayesian Statistics}
 
 \maketitle
-\textbf{Due: Someday, After May 8, 2017, at 10pm (Submit via Gradescope)}
+\textbf{Due: Monday, May 15, 2017, at 10pm (Submit via Gradescope)}
 
 \textbf{Instructions}: Your answers to the questions below, including
 plots and mathematical work, should be submitted as a single PDF file.
@@ -278,7 +279,7 @@ problem, we could come up with a prior that seemed reasonable. For
 example, we could use the following $\mbox{Beta}(3,400)$ as a prior
 distribution on each $\theta_{i}$:
 \begin{center}
-\includegraphics[height=2in]{figures/beta3-400}
+\includegraphics[height=2in]{beta3-400}
 \par\end{center}
 
 In this basic Bayesian approach, the parameters $3$ and $400$ would
@@ -379,7 +380,7 @@ To make things concrete, suppose we observed $x_{i}=3$ clicks out
 of $n_{i}=500$ impressions. A plot of $p(\cd_{i}\mid a,b)$ as a
 function of $a$ and $b$ is given in Figure \ref{fig:single-app-contour-plot}.
 \begin{figure}
-\centering{}\includegraphics[height=2.5in]{figures/single-app-marginal-lik-contour-plot}\caption{\label{fig:single-app-contour-plot}A plot of $p(\protect\cd_{i}\mid a,b)$
+\centering{}\includegraphics[height=2.5in]{single-app-marginal-lik-contour-plot}\caption{\label{fig:single-app-contour-plot}A plot of $p(\protect\cd_{i}\mid a,b)$
 as a function of $a$ and $b$. }
 \end{figure}
 It appears from this plot that the likelihood will keep increasing
@@ -393,6 +394,8 @@ less than $\eps$, for any $\eps>0$. What's going in here is similar
 to what happens when you attempt to fit a gaussian distribution $\cn(\mu,\sigma^{2})$
 to a single data point using maximum likelihood.{]}
 \end{enumerate}
+
+\clearpage
 
 \subsection{\label{subsec:Empirical-Bayes-multiple-apps}Empirical Bayes Using
 All App Data}
@@ -445,10 +448,13 @@ App 6 & 1 & 2\tabularnewline
 Compute the empirical Bayes estimates for $a$ and $b$. (Recall,
 this amounts to computing $(\hat{a},\hat{b})=\argmax_{\left(a,b\right)\in\reals^{>0}\times\reals^{>0}}p(\cd\mid a,b).$)
 This will require solving an optimization problem, for which you are
-free to use any optimization software you like ( perhaps \href{https://docs.scipy.org/doc/scipy/reference/optimize.html}{scipy.optimize}
+free to use any optimization software you like (perhaps \href{https://docs.scipy.org/doc/scipy/reference/optimize.html}{scipy.optimize}
 would be useful). The empirical Bayes prior is then Beta$(\hat{a},\hat{b})$,
 where $\hat{a}$ and $\hat{b}$ are our ML-2 estimates. Give the corresponding
 prior mean and standard deviation for this prior.
+
+\clearpage
+
 \item Complete the following table:\\
 \begin{tabular}{|c|c|c|c|c|c|c|}
 \hline 
@@ -471,6 +477,8 @@ App 6 & 1 & 2 & 50\%  &  &  & \tabularnewline
 Make sure to take a look at the PosteriorSD values and note which
 are big and which are small.
 \end{enumerate}
+
+\clearpage
 
 \subsection{{[}Optional{]} Hierarchical Bayes}
 
@@ -517,6 +525,116 @@ and say this is just another way to determine your prior from the
 data. The estimators $\left(m_{\text{MAP}},v_{\text{MAP}}\right)$
 are often called \textbf{MAP-II estimators}, since they are MAP estimators
 at a higher level of the Bayesian hierarchy.  
+\end{enumerate}
+
+\clearpage
+
+\section{Bayesian Linear Regression}
+
+In this problem, we will implement Bayesian Gaussian linear regression,
+essentially reproducing the example \href{https://davidrosenberg.github.io/mlcourse/Archive/2016/Lectures/13a.bayesian-regression.pdf\#page=12}{from lecture},
+which in turn is based on the example in Figure 3.7 of Bishop's \emph{Pattern
+Recognition and Machine Learning} (page 155). We've provided plotting
+functionality in \textquotedbl{}support\_code.py\textquotedbl{}. Your
+task is to complete \textquotedbl{}problem.py\textquotedbl{}. The
+implementation uses np.matrix objects, and you are welcome to use\footnote{However, in practice we are usually interested in computing the product
+of a matrix inverse and a vector, i.e. $X^{-1}b$. In this case, it's
+usually faster and more accurate to use a library's algorithms for
+solving a system of linear equations. Note that $y=X^{-1}b$ is just
+the solution to the linear system $Xy=b$. See for example \href{https://www.johndcook.com/blog/2010/01/19/dont-invert-that-matrix/}{John Cook's blog post}
+for discussion. } the np.matrix.getI method. 
+\begin{enumerate}
+\item Implement likelihoodFunc.
+
+\begin{minted}{python}
+
+def likelihoodFunc(W, x, y_train, likelihood_var):
+
+    likelihood = 1.0
+    fixed_term = 1.0/(np.sqrt(2 * np.pi * likelihood_var))
+
+    for i in range(len(x)):
+
+        likelihood = likelihood * fixed_term * np.exp(-1 * ((np.square(y_train[i] - np.dot(x[i], W.T)))/(2 * likelihood_var))) 
+
+    return likelihood
+
+\end{minted}
+
+\clearpage
+
+\item Implement getPosteriorParams.
+
+\begin{minted}{python}
+def getPosteriorParams(x, y_train, prior, likelihood_var = 0.2**2):
+
+    x_square = np.dot(x.T,x)
+    first_term_mean = np.matrix.getI(x_square + likelihood_var * np.matrix.getI(prior['var']))
+    second_term_mean = np.dot(x.T, y_train)
+    postMean = np.dot(first_term_mean, second_term_mean)
+    
+    first_term_var = x_square/likelihood_var
+    second_term_var = np.matrix.getI(prior['var'])
+    postVar = np.matrix.getI(first_term_var + second_term_var)
+
+    return postMean, postVar
+\end{minted}
+
+\clearpage
+
+\item Implement getPredictiveParams.
+
+
+\begin{minted}{python}
+
+def getPredictiveParams(x_new, postMean, postVar, likelihood_var = 0.2**2):
+
+    predMean = np.dot(postMean.T, x_new)
+    prod = np.dot(x_new.T, postVar)
+    predVar = np.dot(prod, x_new) + likelihood_var
+
+    return predMean, predVar
+
+\end{minted}
+
+\clearpage
+\item Run 'python problem.py' from inside the Bayesian Regression directory
+to generate the plots. Note we suggest you change the default behavior
+in support\_code.make\_plots from plt.show, to saving the plots for
+inclusion in your homework submission.
+
+\begin{figure}[h!]
+ \centering
+  \includegraphics[width=\linewidth]{Bayesian1.png}
+  \label{Bayesian1}
+\end{figure}
+
+\begin{figure}[h!]
+ \centering
+  \includegraphics[width=\linewidth]{Bayesian2.png}
+  \label{Bayesian2}
+\end{figure}
+
+\begin{figure}[h!]
+ \centering
+  \includegraphics[width=\linewidth]{Bayesian3.png}
+  \label{Bayesian3}
+\end{figure}
+
+\clearpage
+\item Comment on your results. In particular, discuss how each of the following
+change with sample size and with the strength of the prior:  (i) the
+likelihood function, (ii) the posterior distribution, and (iii) the
+posterior predictive distribution.
+\item {[}Optional{]} Our work above was very much ``full Bayes'', in that
+rather than coming up with a single prediction function, we have a
+whole distribution over posterior prediction functions. However, sometimes
+we want a single prediction function, and a common approach is to
+use the MAP estimate. As we discussed in class, for this setting,
+we can get the MAP estimate using ridge regression. Use ridge regression
+to get the MAP prediction function corresponding to the first prior
+covariance. What value did you use for the regularization coefficient?
+Why? 
 \end{enumerate}
 
 \end{document}

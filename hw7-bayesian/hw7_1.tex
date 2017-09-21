@@ -141,10 +141,10 @@ tabsize=2}
 
 
 \title{Machine Learning and Computational Statistics\\
-Homework 7: Bayesian Statistics {[}DRAFT{]}}
+Homework 7: Bayesian Statistics}
 
 \maketitle
-\textbf{Due: Someday, After May 8, 2017, at 10pm (Submit via Gradescope)}
+\textbf{Due: Monday, May 15, 2017, at 10pm (Submit via Gradescope)}
 
 \textbf{Instructions}: Your answers to the questions below, including
 plots and mathematical work, should be submitted as a single PDF file.
@@ -445,7 +445,7 @@ App 6 & 1 & 2\tabularnewline
 Compute the empirical Bayes estimates for $a$ and $b$. (Recall,
 this amounts to computing $(\hat{a},\hat{b})=\argmax_{\left(a,b\right)\in\reals^{>0}\times\reals^{>0}}p(\cd\mid a,b).$)
 This will require solving an optimization problem, for which you are
-free to use any optimization software you like ( perhaps \href{https://docs.scipy.org/doc/scipy/reference/optimize.html}{scipy.optimize}
+free to use any optimization software you like (perhaps \href{https://docs.scipy.org/doc/scipy/reference/optimize.html}{scipy.optimize}
 would be useful). The empirical Bayes prior is then Beta$(\hat{a},\hat{b})$,
 where $\hat{a}$ and $\hat{b}$ are our ML-2 estimates. Give the corresponding
 prior mean and standard deviation for this prior.
@@ -517,6 +517,43 @@ and say this is just another way to determine your prior from the
 data. The estimators $\left(m_{\text{MAP}},v_{\text{MAP}}\right)$
 are often called \textbf{MAP-II estimators}, since they are MAP estimators
 at a higher level of the Bayesian hierarchy.  
+\end{enumerate}
+
+\section{Bayesian Linear Regression}
+
+In this problem, we will implement Bayesian Gaussian linear regression,
+essentially reproducing the example \href{https://davidrosenberg.github.io/mlcourse/Archive/2016/Lectures/13a.bayesian-regression.pdf\#page=12}{from lecture},
+which in turn is based on the example in Figure 3.7 of Bishop's \emph{Pattern
+Recognition and Machine Learning} (page 155). We've provided plotting
+functionality in \textquotedbl{}support\_code.py\textquotedbl{}. Your
+task is to complete \textquotedbl{}problem.py\textquotedbl{}. The
+implementation uses np.matrix objects, and you are welcome to use\footnote{However, in practice we are usually interested in computing the product
+of a matrix inverse and a vector, i.e. $X^{-1}b$. In this case, it's
+usually faster and more accurate to use a library's algorithms for
+solving a system of linear equations. Note that $y=X^{-1}b$ is just
+the solution to the linear system $Xy=b$. See for example \href{https://www.johndcook.com/blog/2010/01/19/dont-invert-that-matrix/}{John Cook's blog post}
+for discussion. } the np.matrix.getI method. 
+\begin{enumerate}
+\item Implement likelihoodFunc.
+\item Implement getPosteriorParams.
+\item Implement getPredictiveParams.
+\item Run 'python problem.py' from inside the Bayesian Regression directory
+to generate the plots. Note we suggest you change the default behavior
+in support\_code.make\_plots from plt.show, to saving the plots for
+inclusion in your homework submission.
+\item Comment on your results. In particular, discuss how each of the following
+change with sample size and with the strength of the prior:  (i) the
+likelihood function, (ii) the posterior distribution, and (iii) the
+posterior predictive distribution.
+\item {[}Optional{]} Our work above was very much ``full Bayes'', in that
+rather than coming up with a single prediction function, we have a
+whole distribution over posterior prediction functions. However, sometimes
+we want a single prediction function, and a common approach is to
+use the MAP estimate. As we discussed in class, for this setting,
+we can get the MAP estimate using ridge regression. Use ridge regression
+to get the MAP prediction function corresponding to the first prior
+covariance. What value did you use for the regularization coefficient?
+Why? 
 \end{enumerate}
 
 \end{document}
