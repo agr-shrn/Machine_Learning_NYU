@@ -45,7 +45,8 @@ def feature_normalization(train, test):
 
 
 ########################################
-#### The square loss function
+#### The square loss function #########
+########################################
 
 def compute_square_loss(X, y, theta):
     """
@@ -57,7 +58,7 @@ def compute_square_loss(X, y, theta):
         theta - the parameter vector, 1D array of size (num_features)
     
     Returns:
-        loss - the square loss, scalar
+        loss - the square loss which will be a scalar
     """
     loss = 0 #initialize the square_loss
     #TODO
